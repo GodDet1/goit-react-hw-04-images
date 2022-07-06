@@ -10,27 +10,30 @@ const App = () => {
   const [data, setData] = useState([]);
   const [submit, setSubmit] = useState('');
   const [isNewSearch, setIsNewSearch] = useState(true);
-  const [isData, setIsData] = useState(true);
+  const [isData, setIsData] = useState(false);
   const [page, setPage] = useState(1);
   const [loader, setLoader] = useState(false);
   const [modalData, setModalData] = useState(null);
 
   useEffect(() => {
     setLoader(true);
+
     fetchData(page, submit)
       .then(({ data: { hits } }) => {
-        checkData(hits);
         return hits;
       })
       .then(data => {
         if (isNewSearch) {
           setData(data);
-          return;
+          return data;
         }
         setData(prev => [...prev, ...data]);
       })
-      .catch(err => console.log(err))
-      .finally(setLoader(false));
+      .then(data => checkData(data))
+      .finally(() => {
+        setLoader(false);
+      })
+      .catch(err => console.log(err));
   }, [page, submit, isNewSearch]);
 
   const handleSubmit = text => {
